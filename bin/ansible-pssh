@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -ex -o pipefail
+
+BASEDIR=$(cd "$(dirname "$0")/.." && pwd)
+ANSIBLE_INVENTORY=${ANSIBLE_INVENTORY:-"${BASEDIR}/bin/mackerel2_inventry"}
+
+PATTERN=$1 # Hatena-Bookmark_backend-default
+if [ -z "$PATTERN" ]; then
+    echo 2>&1 "role required: ansible-pssh ROLE COMMAND"
+    exit 1
+fi
+
+COMMAND="${@:2:($#-1)}"
+if [ -z "$COMMAND" ]; then
+    echo 2>&1 "role command: ansible -pssh ROLE COMMAND"
+    exit 1
+fi
+
+exec ansible -i "$ANSIBLE_INVENTORY" "$PATTERN" -m shell -a "$COMMAND"

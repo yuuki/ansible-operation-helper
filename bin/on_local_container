@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e -o pipefail
+
+# SSH_AUTH_SOCK がDocker for Macではforwardされない問題があるため、しかたなく$HOME/.sshをmountしている
+# https://github.com/docker/for-mac/issues/410
+# 毎回パスフレーズを求められる
+DOCKER="docker run --rm --net=host --env ANSIBLE_REMOTE_USER=${USER} --volume ${HOME}/.ssh:/home/docker/.ssh -it yuuki/ansible-playbooks:local"
+
+CMD="$@"
+
+if [ -z "${CMD}" ]; then
+    echo "CMD required" 1>&2
+    exit 1
+fi
+
+# command
+${DOCKER} ${CMD}

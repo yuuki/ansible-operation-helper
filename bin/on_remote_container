@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e -o pipefail
+
+BASE_DIR=$(cd "$(dirname "$0")/.." && pwd)
+SSH="${BASE_DIR}/bin/on_remote"
+SERVERS_TOOLS_ECR_ENDPOINT='123456789.example.ecr.ap-northeast-1.amazonaws.com'
+
+# retryファイルの使い回しなどのためvolumeを使う
+DOCKER="docker run --rm --net=host"
+DOCKER_OPTION="--env ANSIBLE_REMOTE_USER=${USER} --volume /tmp/.ansible:/work/.ansible --volume \${SSH_AUTH_SOCK}:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent -it"
+DOCKER_IMAGE="${SERVERS_TOOLS_ECR_ENDPOINT}/yuuki/ansible-playbooks"
+
+CMD="$@"
+
+if [ -z "${CMD}" ]; then
+    echo "CMD required" 1>&2
+    exit 1
+fi
+
+if ! type furo2 > /dev/null; then
+    echo "furoshiki2 required" 1>&2
+    exit 1
+fi
+
+export FURO_LOGS_REPOSITORY='your furoshiki2 repositori'
+furo2 exec ${SSH} "${DOCKER} ${DOCKER_OPTION} ${DOCKER_IMAGE} ${CMD}"

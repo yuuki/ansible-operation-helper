@@ -1,0 +1,10 @@
+FROM yuuki/ansible-playbooks
+ENV DEBIAN_FRONTEND noninteractive
+
+# Configure user account
+ARG UID=${UID}
+RUN groupadd -g 1000 docker && \
+    useradd -m -d /home/docker -s /bin/bash -u ${UID} -g 1000 docker
+RUN chown -Rv docker:docker /work/
+
+USER docker

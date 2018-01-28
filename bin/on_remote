@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e -o pipefail
+
+DEPLOY_TO='your operation host'
+
+CMD="$@"
+
+if [ -z "${CMD}" ]; then
+    echo "CMD required" 1>&2
+    exit 1
+fi
+
+# -A は agent forwarding
+# これを指定しないと、SSH_AUTH_SOCKを使って、オペレーションサーバのその先のホストに自分のユーザでログインできない
+ssh -t -A ${DEPLOY_TO} "${CMD}"
